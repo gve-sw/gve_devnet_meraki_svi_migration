@@ -128,7 +128,7 @@ def parse_switch_config(file_path):
                     ip_helper_address = child.re_match_typed(ip_helper_address_re, group=1)
 
                     # Check if this address is a DHCP Address
-                    if ip_helper_address in DHCP_SERVERS:
+                    if ip_helper_address in DHCP_SERVER:
                         ip_helper_addresses.append(ip_helper_address)
 
             if vlan_id not in svi_data and ip_address != '' and subnet_mask != '':
@@ -155,6 +155,17 @@ def parse_switch_config(file_path):
     return svi_data
 
 
+def default_gateway_exists():
+    """
+    Check if a default gateway exists for the Meraki MS.
+    """
+    svi_list_response = dashboard.switch.getDeviceSwitchRoutingInterfaces(MS_SERIAL)
+    for svi in svi_list_response:
+        if 'defaultGateway' in svi:
+            return True
+        return False    
+
+
 def create_default_svi(svi_data):
     """
     Create Meraki SVI which contains default gateway, see README for restrictions on default gateway
@@ -175,7 +186,7 @@ def create_default_svi(svi_data):
 
     # Default gateway doesn't exist on SVI, error
     if target_svi_id == "":
-        console.print(f"[red]Error: {DEFAULT_GATEWAY} doesn't on SVI, please ensure Default Gateway exists on exactly "
+        console.print(f"[red]Error: {DEFAULT_GATEWAY} doesn't exist on SVI, please ensure Default Gateway exists on exactly "
                       f"one imported SVI.[/]")
         return None
 
@@ -250,13 +261,15 @@ def main():
     console.print(Panel.fit(f"Parse Switch Config SVIs", title="Step 2"))
     svi_data = parse_switch_config(temp_file)
 
-    # Create SVI that contains default gateway first
     console.print(Panel.fit(f"Create Default Gateway SVI on MS", title="Step 3"))
-    result = create_default_svi(svi_data)
 
-    # Default gateway is invalid
-    if not result:
-        sys.exit(-1)
+    # Check MS to see if existing default gateway exists for SVI
+    if not default_gateway_exists():
+        # Create SVI that contains default gateway first
+        result = create_default_svi(svi_data)
+        # Default gateway is invalid
+        if not result:
+            sys.exit(-1)
 
     # Create the L3 SVIs on Meraki for remaining SVIs
     console.print(Panel.fit(f"Create Remaining SVIs on MS", title="Step 4"))

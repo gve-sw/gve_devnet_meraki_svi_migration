@@ -24,12 +24,22 @@ import sys
 
 import meraki
 from ciscoconfparse import CiscoConfParse
+from dotenv import load_dotenv
 from netmiko import ConnectHandler
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress
 
-from config import *
+import config
+
+# Load env variables
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
+MS_SERIAL = os.getenv("MS_SERIAL")
+SWITCH_IP = os.getenv("SWITCH_IP")
+SWITCH_USERNAME = os.getenv("SWITCH_USERNAME")
+SWITCH_PASSWORD = os.getenv("SWITCH_PASSWORD")
+SWITCH_SECRET = os.getenv("SWITCH_SECRET")
 
 # Create a Meraki API client
 dashboard = meraki.DashboardAPI(API_KEY, suppress_logging=True)
@@ -128,7 +138,7 @@ def parse_switch_config(file_path):
                     ip_helper_address = child.re_match_typed(ip_helper_address_re, group=1)
 
                     # Check if this address is a DHCP Address
-                    if ip_helper_address in DHCP_SERVER:
+                    if ip_helper_address in config.DHCP_SERVER:
                         ip_helper_addresses.append(ip_helper_address)
 
             if vlan_id not in svi_data and ip_address != '' and subnet_mask != '':
@@ -179,14 +189,14 @@ def create_default_svi(svi_data):
         network = ipaddress.ip_network(vlan_info['subnet'])
 
         # Default gateway belongs on this routed interface, create
-        if ipaddress.ip_address(DEFAULT_GATEWAY) in network:
-            create_svi(console, vlan_info, DEFAULT_GATEWAY)
+        if ipaddress.ip_address(config.DEFAULT_GATEWAY) in network:
+            create_svi(console, vlan_info, config.DEFAULT_GATEWAY)
 
             target_svi_id = vlan_info['vlan_id']
 
     # Default gateway doesn't exist on SVI, error
     if target_svi_id == "":
-        console.print(f"[red]Error: {DEFAULT_GATEWAY} doesn't exist on SVI, please ensure Default Gateway exists on exactly "
+        console.print(f"[red]Error: {config.DEFAULT_GATEWAY} doesn't exist on SVI, please ensure Default Gateway exists on exactly "
                       f"one imported SVI.[/]")
         return None
 

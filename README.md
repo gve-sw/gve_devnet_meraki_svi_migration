@@ -29,21 +29,22 @@ In order to use the Meraki API, you need to enable the API for your organization
 
 ## Installation/Configuration
 1. Clone this repository with `git clone [repository name]`
-2. Add Meraki API key, and the MS Switch Serial to variables in `config.py`
-```python
-API_KEY = ""
-MS_SERIAL = "XXXX-XXXX-XXXX"
+2. Rename the `.env_sample` file to `.env`. Rename `config_sample.py` to `config.py`.
+3. Add Meraki API key, and the MS Switch Serial to variables (`.env`)
+```dotenv
+API_KEY=""
+MS_SERIAL="XXXX-XXXX-XXXX"
 ```
-3. Add Catalyst Switch credentials and IP to variables in `config.py`. 
-```python
-SWITCH_IP = "X.X.X.X"
-SWITCH_USERNAME = ""
-SWITCH_PASSWORD = ""
-SWITCH_SECRET = ""
+4. Add Catalyst Switch credentials and IP to variables in `.env`. 
+```dotenv
+SWITCH_IP="X.X.X.X"
+SWITCH_USERNAME=""
+SWITCH_PASSWORD=""
+SWITCH_SECRET=""
 ```
 **Note:** Please ensure SSH is configured on the Catalyst Switch, as this is required for the Netmiko SSH connection. For more information on Netmiko, consult this [guide](https://pyneng.readthedocs.io/en/latest/book/18_ssh_telnet/netmiko.html). 
 
-4. Add the MS Switch's Default Gateway, and DHCP Server IPs to `config.py`
+5. Add the MS Switch's Default Gateway, and DHCP Server IPs to `config.py`
 ```python
 DEFAULT_GATEWAY = "W.X.Y.Z"
 DHCP_SERVER = ["X.X.X.X", "Y.Y.Y.Y"]
@@ -53,8 +54,8 @@ DHCP_SERVER = ["X.X.X.X", "Y.Y.Y.Y"]
 * `Default Gateway`: The Default Gateway for the MS Switch must exist on exactly one imported SVI or be configured on the MS already. The default gateway serves as the destination for traffic if it can't be routed within or between SVI's on the MS Switch.
 * `DHCP Server` : A list of one or more DHCP Server IPs can be configured. If an SVI contains a `ip helper-address [DHCP IP]` line, the DHCP Server IP will be configured as a relay on the MS SVI. Only DHCP relay is supported at this time.
 
-5. Set up a Python virtual environment. Make sure Python 3 is installed in your environment, and if not, you may download Python [here](https://www.python.org/downloads/). Once Python 3 is installed in your environment, you can activate the virtual environment with the instructions found [here](https://docs.python.org/3/tutorial/venv.html).
-6. Install the requirements with `pip3 install -r requirements.txt`
+6. Set up a Python virtual environment. Make sure Python 3 is installed in your environment, and if not, you may download Python [here](https://www.python.org/downloads/). Once Python 3 is installed in your environment, you can activate the virtual environment with the instructions found [here](https://docs.python.org/3/tutorial/venv.html).
+7. Install the requirements with `pip3 install -r requirements.txt`
 
 ## Usage
 To run the program, use the command:
